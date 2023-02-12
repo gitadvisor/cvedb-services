@@ -1,0 +1,28 @@
+version: '3'
+services:
+  docdb:
+    # use a mongo image that most closely matches the DocumentDB API
+    image: mongo:3.6.20-xenial
+    container_name: mongo
+    env_file: .docker-env
+    networks: ["cve-services"]
+    ports: ["27017:27017"]
+  cveawg:
+    container_name: cveawg
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.dev
+    depends_on: [docdb]
+    env_file: .docker-env
+    networks: ["cve-services"]
+    ports: ["3000:3000"]
+    volumes:
+      - ../package.json:/home/node/app/package.json
+      - ../src:/home/node/app/src
+      - ../test:/home/node/app/test
+      - ../test-examples:/home/node/app/test-examples
+      - ../test-utils:/home/node/app/test-utils
+      - ../.eslintrc.js:/home/node/app/.eslintrc.js
+
+networks:
+  cve-services:
